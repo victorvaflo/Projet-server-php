@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Test AJAX</title>
+</head>
+
+<body>
+    <h1>TEST AJAX</h1>
+    <hr>
+
+    <!-- Using REST API with AJAX calls ---------------- --------------------------------------->
+    <button id="get_all_button">Tous les payments</button><br>
+    Status: <b><span id="status"></span></b><br>
+    <div id="list"></div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+        'use strict'
+        $(document).ready(function () {
+
+            // GET ALL button -----------------------------------------------------
+            $("#get_all_button").click(
+
+                function () {
+                    $("#status").html("Waiting for server...")
+                    $("#list").html("") // clear previous result
+                    $.get(
+                        'http://projetserveur/index.php?op=410',
+                        function (response, textStatus) {
+                            // this executes only on success code returned 2xx like 200, 201, etc..
+                            //console.log(response)
+                            $("#status").html(textStatus)
+
+                            // convert string containing JSON
+                            // into actual JSON object with JSON.parse
+                            // let data_returned = JSON.parse(response)
+                            //console.log('length=' + data_returned.length)
+
+                            let data_returned = response
+                            // build html table with results
+                            var table_html = '<table>'
+                            table_html += '<th>orderNumber</th> <th>orderDate</th> <th>requiredDate</th> <th>shippedDate</th> <th>status</th> <th>comments</th> <th>customerNumber</th>'
+                            for (let i = 0; i < data_returned.length; i++) {
+                                table_html += '<tr><td>' + data_returned[i].orderNumber + '</td> <td>' + data_returned[i].orderDate + '</td> <td>' + data_returned[i].requiredDate + '</td>  <td>' + data_returned[i].shippedDate + '</td><td>' + data_returned[i].status + '</td><td>' + data_returned[i].comments + '</td><td>' + data_returned[i].customerNumber + '</td></tr>'
+                            }
+                            table_html += '</table>'
+                            $("#list").html(table_html)
+                        })
+
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            // this executes only on error with code other than 2xx
+                            // display response code
+                            $("#status").html(jqXHR.status)
+                            //$("#status").append(' ' + textStatus)
+                            $("#status").append(' ' + errorThrown)
+                            // append message returned by our API
+                            //$("#status").append(jqXHR.responseJSON.message)
+                        })
+
+                        // if required .done() and .always() are also available
+                        .done(function () {
+                            // this executes only on success code returned 2xx like 200, 201, etc..
+                            //alert("second success");
+                        })
+                        .always(function () {
+                            // this always executes whatever the response code
+                            //alert("finished");
+                        });
+                }
+            )
+        })
+    </script>
+</body>
+
+</html>
